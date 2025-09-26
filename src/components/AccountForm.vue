@@ -1,12 +1,12 @@
 <template>
   <div class="account-form">
-    <!-- Header with title and add button -->
+
     <div class="header">
       <h2>Для указания нескольких меток для одной пары пользователь используйте разделитель ;</h2>
       <el-button type="primary" :icon="Plus" @click="addNewAccount" circle />
     </div>
 
-    <!-- Form headers -->
+
     <div class="form-headers">
       <div class="header-item">Метка</div>
       <div class="header-item">Тип записи</div>
@@ -15,14 +15,12 @@
       <div class="header-item"></div>
     </div>
 
-    <!-- Account list -->
     <div class="accounts-list">
       <div
         v-for="account in accountsStore.accounts"
         :key="account.id"
         class="account-row"
       >
-        <!-- Tags field -->
         <div class="field-wrapper">
           <el-input
             v-model="tagsInputs[account.id]"
@@ -33,7 +31,6 @@
           />
         </div>
 
-        <!-- Account type select -->
         <div class="field-wrapper">
           <el-select
             :model-value="account.type"
@@ -45,7 +42,6 @@
           </el-select>
         </div>
 
-        <!-- Login field -->
         <div class="field-wrapper">
           <el-input
             v-model="loginInputs[account.id]"
@@ -60,7 +56,6 @@
           </div>
         </div>
 
-        <!-- Password field -->
         <div class="field-wrapper">
           <el-input
             v-if="account.type === 'Локальная'"
@@ -79,7 +74,6 @@
           </div>
         </div>
 
-        <!-- Delete button -->
         <div class="field-wrapper">
           <el-button
             type="danger"
@@ -102,13 +96,11 @@ import type { AccountType, ValidationErrors } from '@/types'
 
 const accountsStore = useAccountsStore()
 
-// Реактивные данные
 const tagsInputs = ref<Record<string, string>>({})
 const loginInputs = ref<Record<string, string>>({})
 const passwordInputs = ref<Record<string, string>>({})
 const validationErrors = reactive<Record<string, ValidationErrors>>({})
 
-// Инициализация полей ввода при изменении учетных записей
 const initializeInputs = () => {
   accountsStore.accounts.forEach(account => {
     if (!tagsInputs.value[account.id]) {
@@ -123,10 +115,8 @@ const initializeInputs = () => {
   })
 }
 
-// Отслеживание изменений учетных записей для инициализации полей ввода
 watch(() => accountsStore.accounts, initializeInputs, { immediate: true })
 
-// Добавление новой учетной записи
 const addNewAccount = () => {
   const newAccount = accountsStore.addAccount()
   tagsInputs.value[newAccount.id] = ''
@@ -135,7 +125,6 @@ const addNewAccount = () => {
   validationErrors[newAccount.id] = {}
 }
 
-// Обновление меток учетной записи
 const updateAccountTags = (accountId: string) => {
   const tagsString = tagsInputs.value[accountId] || ''
   const tags = accountsStore.parseTags(tagsString)
@@ -143,27 +132,23 @@ const updateAccountTags = (accountId: string) => {
   validateAccount(accountId)
 }
 
-// Обновление типа учетной записи
 const updateAccountType = (accountId: string, type: AccountType) => {
   accountsStore.updateAccount(accountId, { type })
   validateAccount(accountId)
 }
 
-// Обновление логина учетной записи
 const updateAccountLogin = (accountId: string) => {
   const login = loginInputs.value[accountId] || ''
   accountsStore.updateAccount(accountId, { login })
   validateAccount(accountId)
 }
 
-// Обновление пароля учетной записи
 const updateAccountPassword = (accountId: string) => {
   const password = passwordInputs.value[accountId] || ''
   accountsStore.updateAccount(accountId, { password })
   validateAccount(accountId)
 }
 
-// Удаление учетной записи
 const deleteAccount = (accountId: string) => {
   accountsStore.deleteAccount(accountId)
   delete tagsInputs.value[accountId]
@@ -172,7 +157,6 @@ const deleteAccount = (accountId: string) => {
   delete validationErrors[accountId]
 }
 
-// Валидация учетной записи
 const validateAccount = (accountId: string) => {
   const account = accountsStore.getAccountById(accountId)
   if (account) {
@@ -181,10 +165,9 @@ const validateAccount = (accountId: string) => {
   }
 }
 
-// Инициализация при монтировании
 onMounted(() => {
   initializeInputs()
-  // Валидация всех существующих учетных записей
+
   accountsStore.accounts.forEach(account => {
     validateAccount(account.id)
   })
@@ -294,25 +277,5 @@ onMounted(() => {
 :deep(.error-field .el-input__wrapper.is-focus) {
   border-color: #f56c6c !important;
   box-shadow: 0 0 0 1px #f56c6c inset !important;
-}
-
-@media (max-width: 768px) {
-  .form-headers,
-  .account-row {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .header-item {
-    display: none;
-  }
-
-  .field-wrapper::before {
-    content: attr(data-label);
-    display: block;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #303133;
-  }
 }
 </style>

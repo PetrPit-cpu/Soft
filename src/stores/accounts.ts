@@ -5,7 +5,6 @@ import type { Account, Tag, AccountType, ValidationErrors } from '@/types';
 export const useAccountsStore = defineStore('accounts', () => {
   const accounts = ref<Account[]>([]);
 
-  // Загрузка учетных записей из localStorage при инициализации хранилища
   const loadAccountsFromStorage = () => {
     const stored = localStorage.getItem('accounts');
     if (stored) {
@@ -18,12 +17,10 @@ export const useAccountsStore = defineStore('accounts', () => {
     }
   };
 
-  // Сохранение учетных записей в localStorage
   const saveAccountsToStorage = () => {
     localStorage.setItem('accounts', JSON.stringify(accounts.value));
   };
 
-  // Парсинг меток из строки с разделителем точка с запятой
   const parseTags = (tagsString: string): Tag[] => {
     if (!tagsString.trim()) return [];
     return tagsString
@@ -33,12 +30,10 @@ export const useAccountsStore = defineStore('accounts', () => {
       .map(tag => ({ text: tag }));
   };
 
-  // Преобразование массива меток в строку для отображения
   const tagsToString = (tags: Tag[]): string => {
     return tags.map(tag => tag.text).join(';');
   };
 
-  // Валидация полей учетной записи
   const validateAccount = (account: Account): ValidationErrors => {
     const errors: ValidationErrors = {};
 
@@ -59,7 +54,7 @@ export const useAccountsStore = defineStore('accounts', () => {
     return errors;
   };
 
-  // Добавление новой учетной записи
+
   const addAccount = () => {
     const newAccount: Account = {
       id: Date.now().toString(),
@@ -73,22 +68,19 @@ export const useAccountsStore = defineStore('accounts', () => {
     return newAccount;
   };
 
-  // Обновление учетной записи
   const updateAccount = (accountId: string, updates: Partial<Account>) => {
     const accountIndex = accounts.value.findIndex(acc => acc.id === accountId);
     if (accountIndex !== -1) {
       accounts.value[accountIndex] = { ...accounts.value[accountIndex], ...updates };
-      
-      // Если тип изменен на LDAP, очистить пароль
+
       if (updates.type === 'LDAP') {
         accounts.value[accountIndex].password = null;
       }
-      
+
       saveAccountsToStorage();
     }
   };
 
-  // Удаление учетной записи
   const deleteAccount = (accountId: string) => {
     const accountIndex = accounts.value.findIndex(acc => acc.id === accountId);
     if (accountIndex !== -1) {
@@ -97,12 +89,10 @@ export const useAccountsStore = defineStore('accounts', () => {
     }
   };
 
-  // Получение учетной записи по ID
   const getAccountById = (accountId: string) => {
     return accounts.value.find(acc => acc.id === accountId);
   };
 
-  // Инициализация хранилища
   loadAccountsFromStorage();
 
   return {
